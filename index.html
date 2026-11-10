@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#6B2737">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Memoriz · Livre d'or vidéo</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600&family=Parisienne&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&family=Raleway:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="bg"><div id="bg-dim"></div></div>
+<video id="cam" playsinline muted autoplay></video>
+
+<!-- ============ ACCUEIL ============ -->
+<section class="screen" id="s-home">
+  <div class="home-inner">
+    <img id="home-logo" alt="" hidden>
+    <p class="eyebrow" data-t="eyebrow"></p>
+    <h1 class="title" data-t="title"></h1>
+    <div class="subtitle-row"><span class="rule"></span><p class="subtitle" data-t="subtitle"></p><span class="rule"></span></div>
+    <p class="welcome" data-t="welcome"></p>
+    <button class="cta" id="btn-start"><span class="cta-icon"></span><span data-t="startLabel"></span></button>
+  </div>
+  <p class="signature" id="signature">Memoriz · photobooth &amp; livre d'or</p>
+  <span class="status-dot" id="status-dot" title=""></span>
+</section>
+
+<!-- ============ PRÉNOM ============ -->
+<section class="screen" id="s-name">
+  <div class="panel">
+    <p class="eyebrow">Avant de commencer</p>
+    <h2 class="h2">Comment vous appelez-vous&nbsp;?</h2>
+    <input id="guest-name" class="big-input" maxlength="40" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Votre prénom (facultatif)">
+    <div class="row">
+      <button class="btn ghost" id="btn-name-skip">Passer</button>
+      <button class="btn primary" id="btn-name-next">Continuer</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUESTIONS ============ -->
+<section class="screen" id="s-prompt">
+  <div class="panel wide">
+    <p class="eyebrow">Besoin d'inspiration&nbsp;?</p>
+    <h2 class="h2">Choisissez une question</h2>
+    <div class="prompt-list" id="prompt-list"></div>
+    <button class="btn ghost small" id="btn-prompt-back">Retour</button>
+  </div>
+</section>
+
+<!-- ============ CABINE ============ -->
+<section class="screen" id="s-booth" data-state="ready">
+  <div class="pv-wrap" id="pv-wrap"><canvas id="pv"></canvas></div>
+  <div class="booth-top">
+    <div class="question" id="booth-q"></div>
+    <button class="link" id="btn-reroll">Autre question</button>
+  </div>
+  <div class="rec-badge"><span class="dot"></span><span id="rec-time">0:00</span><span class="max" id="rec-max"></span></div>
+  <div class="countdown" id="countdown"></div>
+  <div class="saving"><div class="spinner"></div><p>Enregistrement de votre message…</p></div>
+  <div class="booth-bottom">
+    <div class="ready-ui">
+      <p class="hint">Placez-vous face à la caméra et parlez distinctement.</p>
+      <div class="row">
+        <button class="btn ghost" id="btn-booth-back">Retour</button>
+        <button class="btn rec" id="btn-rec"><span class="rec-dot"></span>Démarrer</button>
+      </div>
+      <div class="meter" title="Niveau du micro"><i></i></div>
+    </div>
+    <div class="rec-ui">
+      <div class="progress"><i id="rec-progress"></i></div>
+      <div class="row">
+        <div class="meter small"><i></i></div>
+        <button class="btn stop" id="btn-stop"><span class="stop-sq"></span>Terminer</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RELECTURE ============ -->
+<section class="screen" id="s-review">
+  <div class="panel wide">
+    <p class="eyebrow">Votre message</p>
+    <div class="review-wrap">
+      <video id="review-video" playsinline disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"></video>
+      <button class="replay" id="btn-replay" aria-label="Revoir">Revoir</button>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="btn-retake">Recommencer</button>
+      <button class="btn primary" id="btn-validate">Valider mon message</button>
+    </div>
+    <p class="small-note" id="retake-left"></p>
+  </div>
+</section>
+
+<!-- ============ MERCI ============ -->
+<section class="screen" id="s-thanks">
+  <div class="panel">
+    <div class="check"></div>
+    <h2 class="title thanks-title" id="thanks-title"></h2>
+    <p class="welcome" id="thanks-text"></p>
+    <div class="thanks-bar"><i id="thanks-bar"></i></div>
+  </div>
+</section>
+
+<!-- Zone cachée d'accès admin (appui long 2 s ou 5 tapes, coin haut gauche) -->
+<div id="hotspot" aria-hidden="true"></div>
+
+<!-- ============ CODE PIN ============ -->
+<div class="modal" id="pin" hidden>
+  <div class="pin-box">
+    <p class="pin-title">Code administrateur</p>
+    <div class="pin-dots" id="pin-dots"></div>
+    <p class="pin-msg" id="pin-msg"></p>
+    <div class="keypad" id="keypad">
+      <button>1</button><button>2</button><button>3</button>
+      <button>4</button><button>5</button><button>6</button>
+      <button>7</button><button>8</button><button>9</button>
+      <button data-k="del">⌫</button><button>0</button><button data-k="ok">OK</button>
+    </div>
+    <button class="link" id="pin-cancel">Annuler</button>
+  </div>
+</div>
+
+<!-- ============ ADMINISTRATION ============ -->
+<div id="admin" hidden>
+  <header class="adm-head">
+    <div class="adm-brand"><b>Memoriz</b><span>Livre d'or vidéo · administration</span></div>
+    <div class="adm-active">Événement actif&nbsp;: <b id="adm-active-name"></b></div>
+    <button class="abtn primary" id="adm-close">Mode invité</button>
+  </header>
+  <div class="adm-body">
+    <nav class="adm-nav" id="adm-nav">
+      <button data-tab="events" class="on">Événements</button>
+      <button data-tab="texts">Textes</button>
+      <button data-tab="look">Apparence</button>
+      <button data-tab="flow">Parcours</button>
+      <button data-tab="av">Caméra &amp; micro</button>
+      <button data-tab="videos">Vidéos</button>
+      <button data-tab="lock">Verrouillage</button>
+      <button data-tab="diag">Diagnostic</button>
+    </nav>
+    <main class="adm-main">
+
+      <section class="tab on" id="tab-events">
+        <h3>Événements</h3>
+        <p class="help">Chaque événement a ses propres textes, son apparence et son dossier de vidéos. Prépare-les à l'avance, puis active celui du jour.</p>
+        <label class="f">Nom de l'événement actif <small>(sert aussi à nommer les fichiers vidéo)</small>
+          <input data-ev="name" type="text"></label>
+        <div class="btns">
+          <button class="abtn" id="ev-new">Nouvel événement</button>
+          <button class="abtn" id="ev-dup">Dupliquer l'événement actif</button>
+        </div>
+        <div id="ev-list" class="ev-list"></div>
+      </section>
+
+      <section class="tab" id="tab-texts">
+        <h3>Textes</h3>
+        <p class="help">Tu peux écrire <code>{prenom}</code> dans les textes de remerciement : il sera remplacé par le prénom de l'invité.</p>
+        <label class="f">Petite ligne au-dessus du titre <input data-ev="eyebrow" type="text"></label>
+        <label class="f">Titre (ex. prénoms des mariés) <input data-ev="title" type="text"></label>
+        <label class="f">Sous-titre (ex. date, lieu) <input data-ev="subtitle" type="text"></label>
+        <label class="f">Message d'accueil <textarea data-ev="welcome" rows="2"></textarea></label>
+        <label class="f">Texte du bouton <input data-ev="startLabel" type="text"></label>
+        <label class="f">Titre de remerciement <input data-ev="thanksTitle" type="text"></label>
+        <label class="f">Texte de remerciement <textarea data-ev="thanksText" rows="2"></textarea></label>
+      </section>
+
+      <section class="tab" id="tab-look">
+        <h3>Apparence</h3>
+        <div class="grid2">
+          <label class="f">Couleur de fond <input data-ev="colors.bg" type="color"></label>
+          <label class="f">Couleur principale (boutons) <input data-ev="colors.primary" type="color"></label>
+          <label class="f">Couleur du texte <input data-ev="colors.text" type="color"></label>
+          <label class="f">Texte sur les boutons <input data-ev="colors.onPrimary" type="color"></label>
+          <label class="f">Police du titre <select data-ev="fontTitle" id="sel-font-title"></select></label>
+          <label class="f">Police du texte <select data-ev="fontBody" id="sel-font-body"></select></label>
+        </div>
+        <div class="asset" data-asset="bgAsset">
+          <div class="asset-prev"></div>
+          <div><b>Image de fond</b><p class="help">Photo du couple, faire-part, décor… Elle couvre tout l'écran.</p>
+            <label class="abtn file">Choisir une image<input type="file" accept="image/*" hidden></label>
+            <button class="abtn ghost" data-remove>Retirer</button></div>
+        </div>
+        <label class="f">Assombrir l'image de fond <input data-ev="bgDim" type="range" min="0" max="0.8" step="0.05"></label>
+        <div class="asset" data-asset="logoAsset">
+          <div class="asset-prev"></div>
+          <div><b>Logo / monogramme</b><p class="help">PNG transparent conseillé. Affiché sur l'accueil (et dans la vidéo si l'option est cochée).</p>
+            <label class="abtn file">Choisir une image<input type="file" accept="image/*" hidden></label>
+            <button class="abtn ghost" data-remove>Retirer</button></div>
+        </div>
+        <div class="asset" data-asset="frameAsset">
+          <div class="asset-prev"></div>
+          <div><b>Cadre incrusté dans la vidéo</b><p class="help">PNG transparent au format de la vidéo (1920×1080 en paysage, 1080×1920 en portrait). Se fait très bien dans Canva.</p>
+            <label class="abtn file">Choisir une image<input type="file" accept="image/png,image/webp,image/*" hidden></label>
+            <button class="abtn ghost" data-remove>Retirer</button></div>
+        </div>
+        <h4>Incrustations dans la vidéo</h4>
+        <label class="c"><input data-ev="overlayTitle" type="checkbox"> Titre et sous-titre en bas de la vidéo</label>
+        <label class="c"><input data-ev="overlayLogo" type="checkbox"> Logo en haut à droite de la vidéo</label>
+        <label class="c"><input data-ev="overlayFrame" type="checkbox"> Cadre PNG par-dessus la vidéo</label>
+        <label class="c"><input data-ev="showSignature" type="checkbox"> Afficher la signature «&nbsp;Memoriz&nbsp;» en bas de l'accueil</label>
+      </section>
+
+      <section class="tab" id="tab-flow">
+        <h3>Parcours invité</h3>
+        <label class="c"><input data-ev="askName" type="checkbox"> Demander le prénom de l'invité (ajouté au nom du fichier)</label>
+        <label class="f">Questions
+          <select data-ev="promptMode">
+            <option value="choice">L'invité choisit une question</option>
+            <option value="random">Question tirée au hasard (avec «&nbsp;Autre question&nbsp;»)</option>
+            <option value="none">Pas de question</option>
+          </select></label>
+        <label class="f">Liste des questions <small>(une par ligne)</small><textarea data-ev="prompts" rows="6"></textarea></label>
+        <div class="grid2">
+          <label class="f">Compte à rebours (secondes) <input data-ev="countdown" type="number" min="0" max="10"></label>
+          <label class="f">Durée maximale d'un message
+            <select data-ev="maxDuration" data-num>
+              <option value="30">30 secondes</option><option value="45">45 secondes</option><option value="60">1 minute</option>
+              <option value="90">1 min 30</option><option value="120">2 minutes</option><option value="180">3 minutes</option></select></label>
+          <label class="f">Durée minimale avant de pouvoir arrêter (s) <input data-ev="minDuration" type="number" min="0" max="20"></label>
+          <label class="f">Nombre de reprises autorisées <input data-ev="maxRetakes" type="number" min="0" max="5"></label>
+          <label class="f">Durée de l'écran «&nbsp;Merci&nbsp;» (s) <input data-ev="thanksDelay" type="number" min="2" max="30"></label>
+          <label class="f">Retour à l'accueil après inactivité (s) <input data-set="idleTimeout" type="number" min="15" max="600"></label>
+        </div>
+        <label class="c"><input data-ev="review" type="checkbox"> L'invité revoit son message avant de valider</label>
+        <label class="c"><input data-set="sounds" type="checkbox"> Petits bips pendant le compte à rebours</label>
+      </section>
+
+      <section class="tab" id="tab-av">
+        <h3>Caméra &amp; micro</h3>
+        <div class="av-grid">
+          <div class="av-test">
+            <video id="adm-video" playsinline muted autoplay></video>
+            <div class="meter big"><i></i></div>
+            <p class="help" id="av-info"></p>
+            <p class="warn" id="av-warn" hidden></p>
+          </div>
+          <div>
+            <label class="f">Caméra <select data-set="cameraId" id="sel-cam"></select></label>
+            <label class="f">Micro <select data-set="micId" id="sel-mic"></select></label>
+            <button class="abtn" id="av-refresh">Actualiser la liste</button>
+          </div>
+        </div>
+        <div class="grid2">
+          <label class="f">Qualité
+            <select data-set="resolution"><option value="1080">Full HD 1080p</option><option value="720">HD 720p (tablette modeste)</option></select></label>
+          <label class="f">Format de la vidéo
+            <select data-set="orientation"><option value="auto">Suivre l'orientation de la tablette</option><option value="landscape">Paysage 16:9</option><option value="portrait">Portrait 9:16</option></select></label>
+          <label class="f">Rotation de la caméra
+            <select data-set="rotation" data-num><option value="0">Aucune</option><option value="90">90° (caméra tournée)</option><option value="180">180° (caméra à l'envers)</option><option value="270">270°</option></select></label>
+          <label class="f">Débit vidéo
+            <select data-set="bitrate" data-num><option value="4000000">4 Mb/s (léger)</option><option value="6000000">6 Mb/s (conseillé)</option><option value="10000000">10 Mb/s (haute qualité)</option></select></label>
+        </div>
+        <label class="c"><input data-set="mirror" type="checkbox"> Aperçu en miroir pour l'invité (la vidéo enregistrée reste à l'endroit)</label>
+        <h4>Son</h4>
+        <label class="c"><input data-set="noiseSuppression" type="checkbox"> Réduction du bruit de fond (conseillé en soirée)</label>
+        <label class="c"><input data-set="autoGainControl" type="checkbox"> Réglage automatique du volume</label>
+        <label class="c"><input data-set="echoCancellation" type="checkbox"> Annulation d'écho</label>
+      </section>
+
+      <section class="tab" id="tab-videos">
+        <h3>Vidéos de l'événement</h3>
+        <div class="stats" id="vid-stats"></div>
+        <label class="c"><input data-set="autoDownload" type="checkbox"> Copier automatiquement chaque vidéo dans le dossier <b>Téléchargements</b> de la tablette</label>
+        <div id="folder-box" hidden>
+          <p class="help">Sur ordinateur, tu peux aussi choisir un dossier : chaque vidéo y sera écrite directement, dans un sous-dossier au nom de l'événement.</p>
+          <div class="btns"><button class="abtn" id="folder-pick">Choisir un dossier…</button><span id="folder-name" class="help"></span></div>
+        </div>
+        <div class="btns">
+          <button class="abtn primary" id="vid-zip">Exporter tout (ZIP)</button>
+          <button class="abtn" id="vid-dl-all">Télécharger une par une</button>
+          <button class="abtn danger" id="vid-del-all">Supprimer les vidéos de l'événement</button>
+        </div>
+        <p class="help" id="zip-progress"></p>
+        <div id="vid-list" class="vid-list"></div>
+      </section>
+
+      <section class="tab" id="tab-lock">
+        <h3>Verrouillage</h3>
+        <p class="help">Accès à cette page&nbsp;: appui long (2&nbsp;s) ou 5&nbsp;tapes rapides dans le <b>coin en haut à gauche</b> de l'écran, puis le code.</p>
+        <div class="grid2">
+          <label class="f">Nouveau code (4 à 6 chiffres) <input id="pin-new" type="password" inputmode="numeric" maxlength="6"></label>
+          <label class="f">Confirmer le code <input id="pin-new2" type="password" inputmode="numeric" maxlength="6"></label>
+        </div>
+        <div class="btns"><button class="abtn" id="pin-save">Changer le code</button><span class="help" id="pin-save-msg"></span></div>
+        <label class="c"><input data-set="autoFullscreen" type="checkbox"> Plein écran automatique</label>
+        <label class="c"><input data-set="wakeLock" type="checkbox"> Empêcher la mise en veille de l'écran</label>
+        <label class="c"><input data-set="blockBack" type="checkbox"> Neutraliser le geste / bouton «&nbsp;Retour&nbsp;»</label>
+        <div class="card">
+          <b>Verrouiller complètement la tablette Android (épinglage d'écran)</b>
+          <ol>
+            <li>Paramètres → Sécurité (ou «&nbsp;Sécurité et confidentialité&nbsp;» → «&nbsp;Plus de paramètres&nbsp;») → <b>Épingler les applications</b> → activer, et cocher «&nbsp;Demander le code avant de désépingler&nbsp;».</li>
+            <li>Ouvre l'app Memoriz (icône installée sur l'écran d'accueil).</li>
+            <li>Ouvre les applis récentes, touche l'icône de l'app en haut de sa vignette → <b>Épingler</b>.</li>
+            <li>Pour sortir : maintenir <i>Retour</i> + <i>Récents</i> (ou glisser vers le haut et maintenir), puis code de la tablette.</li>
+          </ol>
+          <p class="help">Les invités ne peuvent alors ni quitter l'app, ni ouvrir les notifications, ni changer de réglage.</p>
+        </div>
+      </section>
+
+      <section class="tab" id="tab-diag">
+        <h3>Diagnostic</h3>
+        <p class="help">À vérifier avant chaque événement. Si la caméra USB n'apparaît pas ici, la tablette ne la reconnaît pas.</p>
+        <div id="diag" class="diag"></div>
+        <div class="btns"><button class="abtn" id="diag-run">Relancer</button><button class="abtn" id="test-rec">Faire un enregistrement test de 5 s</button></div>
+        <p class="help" id="test-rec-msg"></p>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal" id="vmodal" hidden>
+  <div class="vbox"><video id="vmodal-video" controls playsinline></video><button class="abtn" id="vmodal-close">Fermer</button></div>
+</div>
+
+<div id="toast" hidden></div>
+
+<script src="db.js"></script>
+<script src="zip.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
